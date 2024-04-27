@@ -41,25 +41,25 @@ class generator(nn.Module):
             nn.BatchNorm2d(ngf * 8),
             nn.ReLU(True),
             # 输入大小 batch x (ngf*8) x 63 x 63
-            nn.ConvTranspose2d(ngf * 8, ngf * 4, 3, 2, 1, bias=False),
+            nn.ConvTranspose2d(ngf * 8, ngf * 4, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ngf * 4),
             nn.ReLU(True),
-            # 输入大小 batch x (ngf*4) x 125 x 125
-            nn.ConvTranspose2d(ngf * 4, ngf * 2, 4, 1, 0, bias=False),
+            # 输入大小 batch x (ngf*4) x 63 x 63
+            nn.ConvTranspose2d(ngf * 4, ngf * 2, 3, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 2),
+            nn.ReLU(True),
+            # 输入大小 batch x (ngf*2) x 125 x 125
+            nn.ConvTranspose2d(ngf * 2, ngf * 2, 4, 1, 0, bias=False),
             nn.BatchNorm2d(ngf * 2),
             nn.ReLU(True),
             # 输入大小 batch x (ngf*2) x 128 x 128
-            nn.ConvTranspose2d(ngf * 2, ngf * 2, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(ngf * 2),
-            nn.ReLU(True),
-            # 输入大小 batch x (ngf*2) x 128 x 128
-            nn.ConvTranspose2d(ngf * 2, ngf, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(ngf * 2, ngf, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ngf),
             nn.ReLU(True),
-            # 输入大小 batch x (ngf) x 256 x 256
+            # 输入大小 batch x (ngf) x 128 x 128
             nn.ConvTranspose2d(ngf   , number_of_channels, 3, 1, 1, bias=False),
             nn.Tanh()
-            # 输出大小 batch x (nc) x 256 x 256
+            # 输出大小 batch x (nc) x 128 x 128
        )
 
     def forward(self, x):
@@ -74,24 +74,24 @@ class discriminator(nn.Module):
         """
         super(discriminator, self).__init__()
         self.dis = nn.Sequential(
-            # 输入大小 batch x g_d_nc x 256*256
+            # 输入大小 batch x g_d_nc x 128*128
             nn.Conv2d(number_of_channels, ndf  , 3, 1, 1, bias=False),
             nn.BatchNorm2d(ndf ),
             nn.LeakyReLU(0.2, inplace=True),
-            # 输入大小 batch x ndf x 256*256
-            nn.Conv2d(ndf , ndf * 2, 4, 2, 1, bias=False),
+            # 输入大小 batch x ndf x 128*128
+            nn.Conv2d(ndf , ndf * 2, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # 输入大小 batch x (ndf*2) x 128*128
-            nn.Conv2d(ndf * 2, ndf * 2, 3, 1, 1, bias=False),
+            nn.Conv2d(ndf * 2, ndf * 2, 4, 1, 0, bias=False),
             nn.BatchNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
-            # 输入大小 batch x (ndf*2) x 128*128
-            nn.Conv2d(ndf * 2, ndf * 4, 4, 1, 0, bias=False),
+            # 输入大小 batch x (ndf*2) x 125*125
+            nn.Conv2d(ndf * 2, ndf * 4, 3, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
-            # 输入大小 batch x (ndf*4) x 125*125
-            nn.Conv2d(ndf * 4 , ndf * 8, 3, 2, 1, bias=False),
+            # 输入大小 batch x (ndf*4) x 63*63
+            nn.Conv2d(ndf * 4 , ndf * 8, 3, 1, 1, bias=False),
             nn.BatchNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # 输入大小 batch x (ndf*8) x 63*63
