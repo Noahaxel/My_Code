@@ -5,12 +5,6 @@ ndf=64 #判别网络卷积核个数的倍数
 ngf=64 #生成网络卷积核个数的倍数
 
 
-"""
-关于转置卷积：
-当padding=0时,卷积核刚好和输入边缘相交一个单位。因此pandding可以理解为卷积核向中心移动的步数。 
-同时stride也不再是kernel移动的步数,变为输入单元彼此散开的步数,当stride等于1时,中间没有间隔。
-"""
-
 #生成器网络G
 class generator(nn.Module):
     def __init__(self,noise_number,number_of_channels):
