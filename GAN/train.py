@@ -23,16 +23,16 @@ if not os.path.exists(result_save_path):
     os.mkdir(result_save_path)  # 如果没有保存路径的目录文件夹则进行创建
 
 # 训练相关的参数
-lr_d = 0.002  # 判别器学习率
-lr_g = 0.002  # 生成器学习率
+lr_d = 0.0004  # 判别器学习率
+lr_g = 0.0004  # 生成器学习率
 batch_size = 20  # 一个批次的大小
 num_epoch = 10000  # 训练迭代次数
 output_loss_Interval_ratio = 10  # 间隔多少个epoch打印一次损失
-save_model_Interval_ratio = 10  # 间隔多少个epoch保存一次训练过程中的fake图片
+save_model_Interval_ratio = 50  # 间隔多少个epoch保存一次训练过程中的fake图片
 
 # 网络结构相关的参数
 g_d_nc = 3  # d的输入通道和g的输出通道，RGB为3，GRAY为1
-g_input = 10000  # g的输入噪声点个数
+g_input = 1000  # g的输入噪声点个数
 
 # 定义loss的度量方式
 criterion = nn.BCELoss()  # 单目标二分类交叉熵函数
@@ -77,15 +77,17 @@ for sort in Sorts:  # 每一个种类单独训练
         for img in train_loader:  # 每个batch_size的图片
             img_number = len(img)  # 该批次有多少张图片
             real_img = img.cuda()  # 将tensor放入cuda中
-            real_label = torch.ones(img_number).cuda()  # 定义真实的图片label为1
+            real_label = torch.ones(img_number).cuda()  # 定义真实的图片在生成器label为1
+            real_label_d = torch.full((img_number,), 0.9).cuda()  # 定义真实的图片在判别器label为0.9
             fake_label = torch.zeros(img_number).cuda()  # 定义假的图片的label为0
 
             # ==================训练判别器==================
             # 分为两部分：1、真的图像判别为真；2、假的图像判别为假
             # 计算真实图片的损失
             real_out = d(real_img)  # 将真实图片放入判别器中
+            real_label_d = real_label_d.reshape([-1, 1])  # shape (n) -> (n,1)
             real_label = real_label.reshape([-1, 1])  # shape (n) -> (n,1)
-            d_loss_real = criterion(real_out, real_label)  # 得到真实图片的loss
+            d_loss_real = criterion(real_out, real_label_d)  # 得到真实图片的loss
             real_scores = real_out  # 得到真实图片的判别值，输出的值越接近1越好
             # 计算假的图片的损失
             z = torch.randn(img_number, g_input, 1, 1).cuda()  # 随机生成一些噪声
@@ -125,7 +127,7 @@ for sort in Sorts:  # 每一个种类单独训练
         # # 调整学习率,当判别器损失足够小的时候，大幅度降低d的学习率，防止d过于完美，导致g无法训练(增加epoch次数可以开启)
         if d_loss < 0.5:
             for i in d_optimizer.param_groups:
-                i['lr']=lr_d/10
+                i['lr']=lr_d/5
 
         # 将该轮的损失函数值保存到列表当中
         # 保存g损失值为列表,将所有batch累加的损失值除以batch数即该轮epoch的损失值
